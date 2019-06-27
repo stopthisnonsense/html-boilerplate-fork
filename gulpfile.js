@@ -17,7 +17,8 @@ var gulp = require('gulp'),
   source = require('vinyl-source-stream'),
   sourcemaps = require('gulp-sourcemaps'),
   uglify = require('gulp-uglify'),
-  yaml = require('js-yaml')
+  yaml = require('js-yaml'),
+  cache = require( 'gulp-cache' )
 
 var config = yaml.safeLoad(fs.readFileSync('./gulpconfig.yml', 'utf8'));
 
@@ -34,7 +35,7 @@ gulp.task('js-vendor', function () {
 });
 
 
-// Optionally compile a separate browserify "commons" bundle of js that the 
+// Optionally compile a separate browserify "commons" bundle of js that the
 // site's bundle can `require` from.  If you want to do this add node modules
 // to the js.commons.modules array in the yml and uncomment the enqueue for this
 // file in functions.php so that WP sends it.
@@ -43,7 +44,7 @@ gulp.task('js-vendor', function () {
 // task, as if the modules are pulled to a commons bundle, they don't have to
 // be recompiled when the app bundle changes.
 gulp.task('js-commons', function () {
-  // See manual for using browserify with gulp/transforms: 
+  // See manual for using browserify with gulp/transforms:
   // https://github.com/gulpjs/gulp/blob/master/docs/recipes/browserify-transforms.md
 
   var b = browserify({
@@ -68,7 +69,7 @@ gulp.task('js-commons', function () {
 
 // Bundle, sourcemap and minify the main app js
 gulp.task('js-bundle', function () {
-  // See manual for using browserify with gulp/transforms: 
+  // See manual for using browserify with gulp/transforms:
   // https://github.com/gulpjs/gulp/blob/master/docs/recipes/browserify-transforms.md
 
   var b = browserify({
@@ -99,10 +100,10 @@ gulp.task('sass', function () {
   return gulp.src(config.css.sass.src)
     .pipe(sourcemaps.init())
     .pipe(sassGlob())
-    .pipe(sass(config.css.sass))
-    .pipe(autoprefixer(config.css.autoprefixer))
+    .pipe(cache(sass(config.css.sass)))
+    .pipe(cache(autoprefixer(config.css.autoprefixer)))
     .pipe(sass.sync().on('error', sass.logError))
-    .pipe(nano())
+    .pipe(cache(nano()))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(config.css.dest));
 });
