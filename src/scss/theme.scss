@@ -11,7 +11,7 @@
 // ----------------------------------------------
 @import 'deps/variables';
 @import 'deps/mixins';
-
+@import 'deps/bem';
 
 // Base
 // ----------------------------------------------
@@ -21,7 +21,7 @@
 @import 'typography';
 
 
-// Layout
+// Layout 
 // ----------------------------------------------
 @import 'layout';
 

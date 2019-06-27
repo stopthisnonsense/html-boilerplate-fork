@@ -36,3 +36,178 @@
     width: auto;
     height: auto;
 }
+
+
+
+@include b( width ) {
+  @for $step from 0 through 20 {
+    &-#{$step} {
+      width: $step * 5%;
+    }
+  }
+    @each $breakpoint-name, $breakpoint in $breakpoints {
+      @for $step from 0 through 20 {
+        &-#{$step} {
+          @include m( $breakpoint-name ) {
+            @include breakpoint( $breakpoint-name ) {
+              width: $step * 5%;
+            }
+          }
+        }
+      }
+    }
+}
+
+
+@include b( border ) {
+
+  @each $name, $value in $foundation-palette {
+
+      &--#{$name} {
+        border: rem-calc(3) solid $value;
+      }
+    @for $i from 1 through 10 {
+      &--#{$name}-#{$i} {
+        border: rem-calc($i) solid $value;
+      }
+    }
+  }
+  @each $border in top right left bottom {
+    @include m( #{$border} ) {
+      @each $name, $value in $foundation-palette {
+        &--#{$name} {
+          border-#{ $border } :  rem-calc(3) solid $value;
+        }
+        @for $i from 1 through 10 {
+          &--#{$name}-#{$i} {
+            border-#{ $border } :  rem-calc($i) solid $value;
+          }
+        }
+      }
+
+    }
+  }
+}
+
+
+@for $i from -1 through 10 {
+  .z-index-#{$i} {
+    z-index: $i;
+  }
+}
+
+
+@each $vert in baseline sub super text-top text-bottom middle top bottom {
+  .vertical-align--#{$vert} {
+    vertical-align: $vert;
+  }
+}
+
+
+@each $spacing-type in margin padding {
+  $spacing-prefix: str-slice($spacing-type, 0, 1);
+
+  @for $step from 0 through 20 {
+
+    @include b( #{$spacing-prefix}-#{$step} ) {
+      #{$spacing-type}-top: #{$step} * .5rem;
+      #{$spacing-type}-bottom: #{$step} * .5rem;
+      #{$spacing-type}-left: #{$step} * .5rem;
+      #{$spacing-type}-right: #{$step} * .5rem;
+    }
+
+    @include b( #{$spacing-prefix}-x-#{$step} ) {
+      #{$spacing-type}-left: #{$step} * .5rem;
+      #{$spacing-type}-right: #{$step} * .5rem;
+    }
+
+    @include b( #{$spacing-prefix}-y-#{$step} ) {
+      #{$spacing-type}-top: #{$step} * .5rem;
+      #{$spacing-type}-bottom: #{$step} * .5rem;
+    }
+
+
+    @each $side in top right bottom left {
+      $prefix: str-slice( $side, 0, 1 );
+      @include b( #{$spacing-prefix}-#{$prefix}-#{$step} ) {
+        #{$spacing-type}-#{$side}: #{$step} * .5rem
+      }
+    }
+
+  }
+
+  @include b( #{$spacing-prefix}-x-auto ) {
+    #{$spacing-type}-left: auto;
+    #{$spacing-type}-right: auto;
+  }
+
+  @include b( #{$spacing-prefix}-y-auto ) {
+    #{$spacing-type}-top: auto;
+    #{$spacing-type}-bottom: auto;
+  }
+
+  @each $breakpoint-name, $breakpoint in $breakpoints {
+
+    @for $step from 0 through 20 {
+
+      @include b( #{$spacing-prefix}-#{$step}--#{$breakpoint-name} ) {
+        #{$spacing-type}-top: #{$step} * .5rem;
+        #{$spacing-type}-bottom: #{$step} * .5rem;
+        #{$spacing-type}-left: #{$step} * .5rem;
+        #{$spacing-type}-right: #{$step} * .5rem;
+      }
+
+      @include b( #{$spacing-prefix}-x-#{$step}--#{$breakpoint-name} ) {
+        #{$spacing-type}-left: #{$step} * .5rem;
+        #{$spacing-type}-right: #{$step} * .5rem;
+      }
+
+      @include b( #{$spacing-prefix}-y-#{$step}--#{$breakpoint-name} ) {
+        #{$spacing-type}-top: #{$step} * .5rem;
+        #{$spacing-type}-bottom: #{$step} * .5rem;
+      }
+
+      @each $side in top right bottom left {
+        $prefix: str-slice( $side, 0, 1 );
+        @include b( #{$spacing-prefix}-#{$prefix}-#{$step}--#{$breakpoint-name} ) {
+          #{$spacing-type}-#{$side}: #{$step} * .5rem;
+        }
+      }
+
+
+    }
+
+    @include b( #{$spacing-prefix}-x-auto--#{$breakpoint-name} ) {
+      #{$spacing-type}-left: auto;
+      #{$spacing-type}-right: auto;
+    }
+
+    @include b( #{$spacing-prefix}-y-auto--#{$breakpoint-name} ) {
+      #{$spacing-type}-top: auto;
+      #{$spacing-type}-bottom: auto;
+    }
+
+  }
+
+}
+
+
+@include b( position ) {
+  $positions: static relative absolute fixed sticky inherit;
+  @each $position in $positions {
+    &-#{$position} {
+      position: $position;
+    }
+  }
+  @each $breakpoint-name, $breakpoint in $breakpoints {
+    @each $position in $positions {
+      &-#{$position} {
+        @include m( $breakpoint-name ) {
+          @include breakpoint( $breakpoint-name ) {
+            position: $position;
+          }
+        }
+      }
+    }
+  }
+}
