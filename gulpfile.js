@@ -52,7 +52,7 @@ const gulp = require( 'gulp' ),
     }
   }
 
-  function jsVendor() {
+  async function jsVendor() {
     return gulp.src(config.js.vendor.paths)
       .pipe(concat(config.js.vendor.filename))
       .pipe(babel())
@@ -70,7 +70,7 @@ const gulp = require( 'gulp' ),
   // The main advantage is for dev, to reduce the compile time of the bundle
   // task, as if the modules are pulled to a commons bundle, they don't have to
   // be recompiled when the app bundle changes.
-  function jsCommons() {
+  async function jsCommons() {
     // See manual for using browserify with gulp/transforms:
     // https://github.com/gulpjs/gulp/blob/master/docs/recipes/browserify-transforms.md
 
@@ -85,7 +85,7 @@ const gulp = require( 'gulp' ),
 
     b.require(config.js.commons.modules);
 
-    return b.bundle()
+     b.bundle()
       .pipe(source(config.js.commons.filename))
       .pipe(buffer())
       .pipe(uglify())
@@ -95,7 +95,7 @@ const gulp = require( 'gulp' ),
   exports.jsCommons = jsCommons;
 
   // Bundle, sourcemap and minify the main app js
-  function jsBundle() {
+  async function jsBundle() {
     // See manual for using browserify with gulp/transforms:
     // https://github.com/gulpjs/gulp/blob/master/docs/recipes/browserify-transforms.md
 
@@ -111,7 +111,7 @@ const gulp = require( 'gulp' ),
       b.external(config.js.commons.modules);
     }
 
-    return b
+    b
       .bundle()
       .pipe(source("bundle.js"))
       .pipe(buffer())
@@ -120,12 +120,13 @@ const gulp = require( 'gulp' ),
         .on('error', gutil.log)
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(config.js.dest));
+      return
   }
 
   exports.jsBundle = jsBundle;
 
   // Compile scss/sass files into minified, sourcemapped, autoprefixed CSS
-  function sassBundle() {
+  async function sassBundle(cb) {
     return gulp.src(config.css.sass.src)
       .pipe(sourcemaps.init())
       .pipe(sassGlob())
@@ -137,14 +138,43 @@ const gulp = require( 'gulp' ),
       .pipe(gulp.dest(config.css.dest));
   };
 
-  exports.sass = sassBundle;
+  exports.sassBuild = sassBundle;
 
   // Watch the source folders for changes and run compile tasks.  This task should
   // always be running during development for automatic compilation of assets.
   function watch() {
-    gulp.watch('src/scss/**/*.scss', gulp.series('sass'));
-    gulp.watch('src/js/**/*.js', gulp.series('jsBundle'));
+    gulp.watch('src/scss/**/*.scss', gulp.series(cssBuild));
+    gulp.watch('src/js/**/*.js', gulp.series(jsBuild));
     return
   };
 
   exports.watch = watch;
+
+  // Clean gulp-generated js/css assets (automatically run as part of dist)
+  function clean() {
+    return del([
+      path.join(config.js.dest, '*'),
+      path.join(config.css.dest, '*')
+    ]);
+  };
+
+  exports.clean = clean
+
+  // Multistep tasks & default
+  // gulp.task('js', ['js-vendor', 'js-commons', 'js-bundle']);
+  // gulp.task('dist', ['clean', 'js', 'sass']);
+  // gulp.task('default', ['watch']);
+
+  async function jsBuild() {
+    return gulp.parallel( jsVendor, jsCommons, jsBundle )();
+  }
+  async function cssBuild() {
+    return gulp.parallel( sassBundle )();
+  }
+  async function build() {
+    return gulp.series(clean, jsBuild, sassBundle)();
+  }
+
+  exports.js = jsBuild;
+  exports.sass = cssBuild;
+  exports.build = build ;
