@@ -211,3 +211,7 @@
     }
   }
 }
+
+@include b( stuff ) {
+  display: block;
+}

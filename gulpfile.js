@@ -1,4 +1,4 @@
-var gulp = require('gulp'),
+const gulp = require( 'gulp' ),
   autoprefixer = require('gulp-autoprefixer'),
   babel = require('gulp-babel'),
   babelify = require('babelify'),
@@ -20,132 +20,131 @@ var gulp = require('gulp'),
   yaml = require('js-yaml'),
   cache = require( 'gulp-cache' )
 
-var config = yaml.safeLoad(fs.readFileSync('./gulpconfig.yml', 'utf8'));
+  const config = {
+    "js":{
+      "dest":"./assets/js",
+      "vendor":{
+        "paths":["./node_modules/foundation-sites/dist/js/foundation.js"],
+        "filename":"vendor.bundle.js"
+      },
+      "commons":{
+        "modules":[],
+        "filename":"commons.bundle.js"
+      },
+      "bundle":{
+        "entries":"./src/js/bundle.js",
+        "filename":"bundle.js"
+      }
+    },
+    "css":{
+      "dest":"./assets/css",
+      "sass":{
+        "src":"./src/scss/theme.scss",
+        "includePaths":[
+          "./node_modules",
+        "./node_modules/foundation-sites/scss"
+      ]
+      }
 
-
-// Concat/minify self-contained scripts or scripts that aren't otherwise used
-// as CommonJS type modules.  By default this includes the Foundation script.
-// Other possibilities would be polyfill/shim scripts, etc.
-gulp.task('js-vendor', function () {
-  return gulp.src(config.js.vendor.paths)
-    .pipe(concat(config.js.vendor.filename))
-    .pipe(babel())
-    .pipe(uglify())
-    .pipe(gulp.dest(config.js.dest));
-});
-
-
-// Optionally compile a separate browserify "commons" bundle of js that the
-// site's bundle can `require` from.  If you want to do this add node modules
-// to the js.commons.modules array in the yml and uncomment the enqueue for this
-// file in functions.php so that WP sends it.
-//
-// The main advantage is for dev, to reduce the compile time of the bundle
-// task, as if the modules are pulled to a commons bundle, they don't have to
-// be recompiled when the app bundle changes.
-gulp.task('js-commons', function () {
-  // See manual for using browserify with gulp/transforms:
-  // https://github.com/gulpjs/gulp/blob/master/docs/recipes/browserify-transforms.md
-
-  var b = browserify({
-    debug: true,
-    transform: [babelify]
-  });
-
-  if (!(config.js.commons.modules && config.js.commons.modules.length)) {
-    return;
+    },
+    "browsersync":{
+      "proxy":"localhost","notify":false,"open":false,"snippetOptions":{"ignorePaths":"wp-admin/**"}
+    }
   }
 
-  b.require(config.js.commons.modules);
+  function jsVendor() {
+    return gulp.src(config.js.vendor.paths)
+      .pipe(concat(config.js.vendor.filename))
+      .pipe(babel())
+      .pipe(uglify())
+      .pipe(gulp.dest(config.js.dest));
+  };
 
-  return b.bundle()
-    .pipe(source(config.js.commons.filename))
-    .pipe(buffer())
-    .pipe(uglify())
-      .on('error', gutil.log)
-    .pipe(gulp.dest(config.js.dest));
-});
+  exports.jsVendor = jsVendor;
 
+  // Optionally compile a separate browserify "commons" bundle of js that the
+  // site's bundle can `require` from.  If you want to do this add node modules
+  // to the js.commons.modules array in the yml and uncomment the enqueue for this
+  // file in functions.php so that WP sends it.
+  //
+  // The main advantage is for dev, to reduce the compile time of the bundle
+  // task, as if the modules are pulled to a commons bundle, they don't have to
+  // be recompiled when the app bundle changes.
+  function jsCommons() {
+    // See manual for using browserify with gulp/transforms:
+    // https://github.com/gulpjs/gulp/blob/master/docs/recipes/browserify-transforms.md
 
-// Bundle, sourcemap and minify the main app js
-gulp.task('js-bundle', function () {
-  // See manual for using browserify with gulp/transforms:
-  // https://github.com/gulpjs/gulp/blob/master/docs/recipes/browserify-transforms.md
+    var b = browserify({
+      debug: true,
+      transform: [babelify]
+    });
 
-  var b = browserify({
-    entries: config.js.bundle.entries,
-    debug: true,
-    transform: [
-      babelify
-    ]
-  });
+    if (!(config.js.commons.modules && config.js.commons.modules.length)) {
+      return;
+    }
 
-  if (config.js.commons.modules && config.js.commons.modules.length) {
-    b.external(config.js.commons.modules);
+    b.require(config.js.commons.modules);
+
+    return b.bundle()
+      .pipe(source(config.js.commons.filename))
+      .pipe(buffer())
+      .pipe(uglify())
+        .on('error', gutil.log)
+      .pipe(gulp.dest(config.js.dest));
+  }
+  exports.jsCommons = jsCommons;
+
+  // Bundle, sourcemap and minify the main app js
+  function jsBundle() {
+    // See manual for using browserify with gulp/transforms:
+    // https://github.com/gulpjs/gulp/blob/master/docs/recipes/browserify-transforms.md
+
+    var b = browserify({
+      entries: config.js.bundle.entries,
+      debug: true,
+      transform: [
+        ["babelify", {"presets":["@babel/preset-env"]}]
+      ]
+    });
+
+    if (config.js.commons.modules && config.js.commons.modules.length) {
+      b.external(config.js.commons.modules);
+    }
+
+    return b
+      .bundle()
+      .pipe(source("bundle.js"))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({loadMaps: true}))
+      .pipe(uglify())
+        .on('error', gutil.log)
+      .pipe(sourcemaps.write('./'))
+      .pipe(gulp.dest(config.js.dest));
   }
 
-  return b.bundle()
-    .pipe(source(config.js.bundle.filename))
-    .pipe(buffer())
-    .pipe(sourcemaps.init({loadMaps: true}))
-    .pipe(uglify())
-      .on('error', gutil.log)
-    .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(config.js.dest));
-});
+  exports.jsBundle = jsBundle;
 
+  // Compile scss/sass files into minified, sourcemapped, autoprefixed CSS
+  function sassBundle() {
+    return gulp.src(config.css.sass.src)
+      .pipe(sourcemaps.init())
+      .pipe(sassGlob())
+      .pipe(sass(config.css.sass))
+      .pipe(autoprefixer(config.css.autoprefixer))
+      .pipe(sass.sync().on('error', sass.logError))
+      .pipe(cache(nano()))
+      .pipe(sourcemaps.write('.'))
+      .pipe(gulp.dest(config.css.dest));
+  };
 
-// Compile scss/sass files into minified, sourcemapped, autoprefixed CSS
-gulp.task('sass', function () {
-  return gulp.src(config.css.sass.src)
-    .pipe(sourcemaps.init())
-    .pipe(sassGlob())
-    .pipe(sass(config.css.sass))
-    .pipe(autoprefixer(config.css.autoprefixer))
-    .pipe(sass.sync().on('error', sass.logError))
-    .pipe(cache(nano()))
-    .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(config.css.dest));
-});
+  exports.sass = sassBundle;
 
+  // Watch the source folders for changes and run compile tasks.  This task should
+  // always be running during development for automatic compilation of assets.
+  function watch() {
+    gulp.watch('src/scss/**/*.scss', gulp.series('sass'));
+    gulp.watch('src/js/**/*.js', gulp.series('jsBundle'));
+    return
+  };
 
-// Watch the source folders for changes and run compile tasks.  This task should
-// always be running during development for automatic compilation of assets.
-gulp.task('watch', function () {
-  gulp.watch('src/scss/**/*.scss', ['sass']);
-  gulp.watch('src/js/**/*.js', ['js-bundle']);
-});
-
-
-// Run a browsersync server, main options managed in gulpconfig.yml
-// Alternative to `gulp watch`, run this if you want to make use of browsersync
-// for real time code/css updates, etc.
-gulp.task('server', ['watch'], function () {
-  browserSync.init(config.browsersync);
-
-  browserSync.watch([
-    'assets/css/theme.css',
-    'assets/js/bundle.js',
-    '**/*.php'
-  ])
-  .on('change', browserSync.reload)
-  .on('error', function (err) {
-    console.log('error in browsersync watch', err);
-    this.emit('end');
-  });
-});
-
-
-// Clean gulp-generated js/css assets (automatically run as part of dist)
-gulp.task('clean', function () {
-  return del([
-    path.join(config.js.dest, '*'),
-    path.join(config.css.dest, '*')
-  ]);
-});
-
-
-// Multistep tasks & default
-gulp.task('js', ['js-vendor', 'js-commons', 'js-bundle']);
-gulp.task('dist', ['clean', 'js', 'sass']);
-gulp.task('default', ['watch']);
+  exports.watch = watch;
