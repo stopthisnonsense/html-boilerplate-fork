@@ -175,6 +175,25 @@ const gulp = require( 'gulp' ),
     return gulp.series(clean, jsBuild, sassBundle)();
   }
 
+  function server() {
+    return gulp.parallel(watch, () => {
+      browserSync.init(config.browsersync);
+
+      browserSync.watch([
+        'assets/css/theme.css',
+        'assets/js/bundle.js',
+        '**/*.php'
+      ])
+      .on('change', browserSync.reload)
+      .on('error', function (err) {
+        console.log('error in browsersync watch', err);
+        this.emit('end');
+      });
+    } )()
+  }
+  exports.server = server;
+
+
   exports.js = jsBuild;
   exports.sass = cssBuild;
-  exports.build = build ;
+  exports.build = build;
