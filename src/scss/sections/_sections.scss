@@ -1,0 +1,37 @@
+@include b( section-pad ) {
+  @include m( small ) {
+    padding: rem-calc( ( 64 / 2 ) ( $grid-margin-baseline / 2 ) );
+    @include breakpoint( large ) {
+      padding: rem-calc( 64 $grid-margin-baseline );
+    }
+  }
+  @include m( medium ) {
+    padding: rem-calc( ( 120 / 2 ) ( $grid-margin-baseline / 2 ) );
+    @include breakpoint( large ) {
+      padding: rem-calc( 120 $grid-margin-baseline );
+    }
+
+  }
+}
+
+@include b(section) {
+	@include flex;
+	@include flex-align(center, middle);
+  position: relative;
+  flex-direction: column;
+  @include breakpoint( large ) {
+    flex-direction: row;
+  }
+	@include e(container) {
+		width: 100%;
+		max-width: 100%;
+		position: relative;
+	}
+
+	// .section__container max-widths
+	@each $breakpoint-name, $breakpoint in $breakpoints {
+		@include m($breakpoint-name) {
+			@include e(container) {@extend .container--#{$breakpoint-name};}
+		}
+	}
+}

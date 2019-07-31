@@ -12,3 +12,7 @@
 	// @include m(full) {max-width: 100%};
 	&--full {@include max-width-100;}
 }
+
+@include b( content-wrap ) {
+	flex: 1 1 auto;
+}

@@ -1,2 +1,95 @@
 // Buttons
 // ----------------------------------------------
+@include b( button ) {
+
+  @include m( hollow ) {
+    @extend .button.hollow;
+    background-color: transparent;
+    &:hover {
+      color: $white;
+    }
+  }
+
+  // Using bem prevents annoying css specificity vs Foundation presets
+  @each $name, $value in $foundation-palette {
+    &--#{$name} {
+      @extend .button.#{$name};
+      background-color: $value;
+      border-color: $value;
+      &-hollow {
+        @extend .button.#{$name}.hollow;
+        background-color: transparent;
+        border-color: $value;
+        color: $value;
+        &:hover {
+          background-color: $value;
+          color: $white;
+          border-color: scale-color($value, $lightness: -15%);
+        }
+      }
+    }
+  }
+
+  //Don't need the full $grayscale palette
+  @include m( white ) {
+    color: $white;
+    border-color: $white;
+    &-hollow {
+      border-color: $white;
+      background-color: transparent;
+      color: $white;
+      &:hover {
+        color: $secondary-color;
+        border-color: $secondary-color;
+        background-color: $white;
+      }
+      @each $name, $value in $foundation-palette {
+        &-#{$name} {
+          &:hover {
+            border-color: $value;
+            color: $value;
+          }
+        }
+      }
+    }
+  }
+}
+
+@include b( button-group ) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  @include breakpoint( large ) {
+    flex-direction: row;
+  }
+  @include m( right ) {
+    justify-content: flex-end;
+  }
+
+  @include m( left ) {
+    justify-content: flex-start;
+  }
+
+  @include m( wrap ) {
+    flex-wrap: wrap;
+  }
+
+  @each $name, $value in $foundation-palette {
+    &--#{$name} {
+      a:not( .button ) {
+        color: $value;
+        &:hover {
+          color: scale-color($value, $lightness: -15%);
+        }
+      }
+      .button {
+        background-color: $value;
+        &:hover {
+          background-color: scale-color($value, $lightness: -15%);
+        }
+      }
+    }
+  }
+
+}
