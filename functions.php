@@ -247,3 +247,20 @@ add_action( 'admin_menu', 'h5bs_client_options' );
 
 // Translation
 // require_once( 'includes/lang/translation.php' ); // uncomment if needed
+// get an image
+function get_img( $img ) {
+  return get_template_directory_uri() . "/assets/images/{$img}";
+}
+//echo an image
+function img( $img ) {
+  echo get_img( $img );
+}
+
+// get an image
+function get_svg( $img ) {
+  return get_template_directory_uri() . "/assets/images/svg/{$img}.svg";
+}
+//echo an image
+function svg( $img ) {
+  echo get_svg( $img );
+}
