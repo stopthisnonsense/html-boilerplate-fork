@@ -38,7 +38,7 @@ function h5bs_primary_nav() {
         'container'       => false,                        // remove nav container
         'menu'            => 'Primary Nav',                // nav name
         'menu_id'         => 'nav-main',                   // custom id
-        'menu_class'      => 'nav-main nav group',         // custom class
+        'menu_class'      => 'nav nav--main group',         // custom class
         'theme_location'  => 'primary',                    // where it's located in the theme
         'before'          => '',                           // before the menu
         'after'           => '',                           // after the menu
@@ -54,7 +54,7 @@ function h5bs_secondary_nav() {
         'container'       => false,                        // remove nav container
         'menu'            => 'Secondary Nav',              // nav name
         'menu_id'         => 'nav-sub',                    // custom id
-        'menu_class'      => 'nav-sub nav group',          // custom class
+        'menu_class'      => 'nav nav--sub group',          // custom class
         'theme_location'  => 'secondary',                  // where it's located in the theme
         'before'          => '',                           // before the menu
         'after'           => '',                           // after the menu
@@ -70,7 +70,7 @@ function h5bs_footer_nav() {
         'container'       => false,                        // remove nav container
         'menu'            => 'Footer Nav',                 // nav name
         'menu_id'         => 'nav-footer',                 // custom id
-        'menu_class'      => 'nav-footer nav group',       // custom class
+        'menu_class'      => 'nav nav--footer group',       // custom class
         'theme_location'  => 'footer',                     // where it's located in the theme
         'before'          => '',                           // before the menu
         'after'           => '',                           // after the menu
@@ -86,7 +86,7 @@ function h5bs_mobile_nav() {
         'container'       => false,                        // remove nav container
         'menu'            => 'Mobile Nav',                 // nav name
         'menu_id'         => 'nav-mobile',                 // custom id
-        'menu_class'      => 'nav-mobile nav group',       // custom class
+        'menu_class'      => 'nav nav--mobile group',       // custom class
         'theme_location'  => 'mobile',                     // where it's located in the theme
         'before'          => '',                           // before the menu
         'after'           => '',                           // after the menu
@@ -99,7 +99,7 @@ function h5bs_mobile_nav() {
 
 function h5bs_nav_fallback() {
     wp_page_menu(array(
-        'menu_class'  => 'nav group',
+        'menu_class'  => 'nav nav--fallback group',
         'include'     => '',
         'exclude'     => '',
         'link_before' => '',

@@ -1,5 +1,5 @@
 /*=Header
 ---------------------------------------------------------------------*/
-.site-header {
+@include b( header ) {
     position: relative;
 }

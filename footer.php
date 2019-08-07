@@ -5,8 +5,8 @@
  */
 ?>
 
-<footer class="site-footer" role="contentinfo">
-    <nav class="nav-footer-wrap" role="navigation">
+<footer class="footer" role="contentinfo">
+    <nav class="nav-wrap nav-wrap--footer" role="navigation">
         <?php h5bs_footer_nav(); ?>
     </nav>
 

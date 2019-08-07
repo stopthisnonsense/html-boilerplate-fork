@@ -21,14 +21,14 @@
 
 <body <?php body_class(); ?>>
 
-<header class="site-header" role="banner">
-    <p class="logo"><a href="<?php echo home_url( '/' ); ?>"><?php bloginfo( 'name' ); ?></a></p>
+<header class="header" role="banner">
+    <p class="logo logo--header"><a class="logo__link" href="<?php echo home_url( '/' ); ?>"><?php bloginfo( 'name' ); ?></a></p>
 
-    <nav class="nav-main-wrap" role="navigation">
+    <nav class="nav-wrap nav-wrap--main" role="navigation">
         <?php h5bs_primary_nav(); ?>
     </nav>
 
-    <nav class="nav-mobile-wrap" role="navigation">
+    <nav class="nav-wrap nav-wrap--mobile" role="navigation">
         <i id="nav-mobile-toggle" class="nav-mobile-toggle fa fa-bars"></i>
         <?php h5bs_mobile_nav(); ?>
     </nav>
